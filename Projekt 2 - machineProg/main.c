@@ -46,7 +46,7 @@ int main(void) {
     printf("INPUT >");
 
     //////////////////
-    typedef Card; {
+    typedef struct {
           char suit;
           int rank;
     } Card;

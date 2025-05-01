@@ -1,0 +1,3 @@
+C:/Users/sokka/CLionProjects/Projekt 2 - machineProg/cmake-build-debug/CMakeFiles/untitled4.dir
+C:/Users/sokka/CLionProjects/Projekt 2 - machineProg/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/sokka/CLionProjects/Projekt 2 - machineProg/cmake-build-debug/CMakeFiles/rebuild_cache.dir

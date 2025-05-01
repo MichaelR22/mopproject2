@@ -46,6 +46,17 @@ int main(void) {
     printf("INPUT >");
 
     //////////////////
+    typedef Card {
+          char suit;
+          int rank;
+    } Card;
+
+    typedef struct Node {
+        Card* Card;              // Pointer to store the string (line of text)
+        struct Node* next;       // Pointer to the next node
+    } Node;
+
+
 
 }
 

@@ -62,3 +62,6 @@ int main(void) {
 
 
 
+//SW til startup fasen,
+
+

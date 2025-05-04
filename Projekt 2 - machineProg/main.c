@@ -59,8 +59,4 @@ int main(void) {
 
 
 }
-jædfv
-kandf
-aknf
-//ælksjdafljasdlfjæds
-int p
+//SW delen

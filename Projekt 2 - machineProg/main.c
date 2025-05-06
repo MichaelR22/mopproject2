@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define length 10
 #define width 10
@@ -11,18 +12,18 @@
 
 
 typedef struct{
-    char suit;
-    int rank;
+    char suit; // C, D, H, S
+    int rank; // 1-13
 }Card;
 
 typedef struct Node {
-    char* data;              // Pointer to store the string (line of text)
+    Card card;              // Pointer to store the string (line of text)
     struct Node* next;       // Pointer to the next node
 } Node;
 
 
 // Function to create a new node
-Node* createNode(char* line) {
+Node* createNode(char suit, int rank) {
     // Allocate memory for the new node
     Node* newNode = (Node*)malloc(sizeof(Node));
     if (newNode == NULL) {
@@ -30,25 +31,37 @@ Node* createNode(char* line) {
         exit(1);
     }
 
-    // Allocate memory for the string and copy the line
-    newNode->data = (char*)malloc(strlen(line) + 1);
-    if (newNode->data == NULL) {
+    // Kristian med mindre at LD eller SD behøver dette kan det slettes da Card ikke længere er en pointer variabel
+    // Allocate memory for the string and copy the card
+    /*newNode->card = (char*)malloc(strlen(card) + 1);
+    if (newNode->card == NULL) {
         printf("Memory allocation failed for data!\n");
         free(newNode);
         exit(1);
-    }
+    }*/
 
-    strcpy(newNode->data, line);
+    newNode->card.suit = suit;
+    newNode->card.rank = rank;
     newNode->next = NULL;
-
     return newNode;
+}
+
+// Function to get the node at a specific index
+Node* getNodeAt(Node* head, int index) {
+    int count = 0;
+    Node* current = head;
+    while (current && count < index) {
+        current = current->next;
+        count++;
+    }
+    return current;
 }
 
 
 // Function to insert a node at the end of the linked list
-void insertEnd(Node** head, char* line) {
+void insertEnd(Node** head, char suit, int rank) {
     // Create a new node
-    Node* newNode = createNode(line);
+    Node* newNode = createNode(suit, rank);
 
     // If the list is empty, make the new node the head
     if (*head == NULL) {
@@ -66,11 +79,38 @@ void insertEnd(Node** head, char* line) {
 }
 
 
+//Swap two nodes card data
+ void swapCards(Node* a, Node* b) {
+    Card temp = a->card;
+    a->card = b->card;
+    b->card = temp;
+ }
+
+//SR
+void shuffleRandom(Node* head) {
+    srand((unsigned int)time(NULL)); //Sets seed based on current time ;D
+    for (int i = NUM_CARDS - 1; i > 0; i--) { //As we use a single linked list we have to start from the last element
+        int j = rand() % (i + 1);
+        Node* nodeI = getNodeAt(head, i);
+        Node *nodeJ = getNodeAt(head, j);
+        swapCards(nodeI,nodeJ);
+    }
+}
+
+// Helper function to parse cards
+int parseCard(const char* str, char* suit, int* rank) {
+    if (strlen(str) < 2)
+        return 0;
+    *suit = str[0];
+    *rank = atoi(&str[1]);
+    return 1;
+}
 
 
 int main(void) {
     //////////////////
     char input[3]; //needs to be 3 because terminating the input steam takes 1, otherwise the user input should always be 2.
+    Node* head = NULL;
 
 
     for (int i = 0; i < NUM_TABLEAU_PILES; i++) {
@@ -112,9 +152,9 @@ int main(void) {
         input[i] = toupper(input[i]);
     }
     printf("you entered %s\n",input);
+
     if (strcmp(input,"LD") == 0) {
         Node* Deck = NULL;
-        FILE* file;
         char line[1024];  // Buffer to store each line from the file
         char filename[100];
 
@@ -123,7 +163,7 @@ int main(void) {
         scanf("%s", filename);
 
         // Open the file
-        file = fopen("C:\\Users\\sokka\\CLionProjects\\mopproject2\\Projekt 2 - machineProg\\DeckDefault.txt", "r");
+        FILE* file = fopen("DeckDefault.txt", "r");
         if (file == NULL) {
             printf("Error opening file '%s'!\n", filename);
             return 1;
@@ -146,7 +186,7 @@ int main(void) {
     } else if (strcmp(input, "SI") == 0) {
         printf("SW works"); //call to SI subroutine should replace this
     } else if (strcmp(input, "SR") == 0) {
-        printf("SW works"); //call to SR subroutine should replace this
+        shuffleRandom(head);
     } else if (strcmp(input, "SD") == 0) {
         printf("SW works"); //call to SD subroutine should replace this
     } else if (strcmp(input, "QQ") == 0) {
@@ -157,4 +197,5 @@ int main(void) {
 
 
 }
-//SW delen
+
+

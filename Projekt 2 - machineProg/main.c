@@ -21,6 +21,33 @@ typedef struct Node {
     struct Node* next;       // Pointer to the next node
 } Node;
 
+void saveDeck(struct Node* head) {  // Removed the extra semicolon
+    char filename[1024];
+    printf("Enter the name of the text file to save to: ");
+    scanf("%s", filename);
+
+    FILE *fptr;
+    fptr = fopen(filename, "w");
+
+    if (fptr == NULL) {
+        printf("Deck not found, creating new deck\n");
+    }
+
+    struct Node* current = head;  // Use a temporary pointer to avoid modifying the original head
+
+    // A loop that runs till current is NULL
+    while (current != NULL) {
+        // Printing data of current node
+        fprintf(fptr, "%c%d\n", current->card.suit, current->card.rank);  // Added file pointer and newline
+
+        // Moving to the next node
+        current = current->next;
+    }
+
+    // Close the file AFTER the loop (not inside it)
+    fclose(fptr);
+    printf("Deck saved successfully to %s\n", filename);
+}
 
 // Function to create a new node
 Node* createNode(char suit, int rank) {
@@ -189,13 +216,15 @@ int main(void) {
 
     if (strncmp(input,"LD",2) == 0) {
 
-        Node* Deck = NULL;
+        Node* head = NULL;
         char line[1024];  // Buffer to store each line from the file
         char filename[100];
 
         // Get filename from user
         printf("Enter the name of the text file to read: ");
         scanf("%s", filename);
+
+
 
         // Open the file
         FILE* file = fopen(filename, "r");
@@ -209,7 +238,7 @@ int main(void) {
             char suit;
             int rank;
             if (parseCard(line, &suit, &rank)) {
-                insertEnd(&Deck, suit, rank);
+                insertEnd(&head, suit, rank);
             }
         }
 
@@ -218,7 +247,7 @@ int main(void) {
         fclose(file);
 
     } else if (strncmp(input, "SW",2) == 0) {
-        void SW(Card* deck) {
+       /* void SW(Card* deck) {
             if (deck == NULL) { //her tjekkes om der er kort i decket
                 printf("Error: No deck loaded.\n");
                 return;
@@ -231,8 +260,8 @@ int main(void) {
             }
             printf("\n");
 
-            printf("LAST Command: SW\nMessage: OK\n");//alt har kørt ok
-        }
+         printf("LAST Command: SW\nMessage: OK\n");//alt har kørt ok
+        }*/
     } else if (strncmp(input, "SI", 2) == 0) { //checks if the first two characters of user input is SI
         int split = 0;
         if (strlen(input) > 2) { //Now checks if input is longer than 2 characters
@@ -242,26 +271,7 @@ int main(void) {
     } else if (strncmp(input, "SR",2) == 0) {
         shuffleRandom(head);
     } else if (strncmp(input, "SD",2) == 0) {
-        void saveDeck(struct Node* head); {
-
-            // A loop that runs till head is NULL
-            while (head != NULL) {
-                char filename [1024];
-                printf("Enter the name of the text file to : ");
-                scanf("%s", filename);
-                FILE *fptr;
-                fptr = fopen(filename, "w");
-
-                // Printing data of current node
-                fprintf(fptr, head->card.suit, head->card.rank);
-
-                // Moving to the next node
-                head = head->next;
-
-                // Close the file
-                fclose(fptr);
-            }
-        }
+        saveDeck(head);
     } else if (strncmp(input, "QQ",2) == 0) {
         return 0;
     } else {

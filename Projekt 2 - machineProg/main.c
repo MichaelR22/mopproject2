@@ -30,16 +30,6 @@ Node* createNode(char suit, int rank) {
         printf("Memory allocation failed for node!\n");
         exit(1);
     }
-
-    // Kristian med mindre at LD eller SD behøver dette kan det slettes da Card ikke længere er en pointer variabel
-    // Allocate memory for the string and copy the card
-    /*newNode->card = (char*)malloc(strlen(card) + 1);
-    if (newNode->card == NULL) {
-        printf("Memory allocation failed for data!\n");
-        free(newNode);
-        exit(1);
-    }*/
-
     newNode->card.suit = suit;
     newNode->card.rank = rank;
     newNode->next = NULL;
@@ -198,6 +188,7 @@ int main(void) {
     printf("you entered %s\n",input);
 
     if (strncmp(input,"LD",2) == 0) {
+
         Node* Deck = NULL;
         char line[1024];  // Buffer to store each line from the file
         char filename[100];
@@ -207,7 +198,7 @@ int main(void) {
         scanf("%s", filename);
 
         // Open the file
-        FILE* file = fopen("DeckDefault.txt", "r");
+        FILE* file = fopen(filename, "r");
         if (file == NULL) {
             printf("Error opening file '%s'!\n", filename);
             return 1;
@@ -227,7 +218,21 @@ int main(void) {
         fclose(file);
 
     } else if (strncmp(input, "SW",2) == 0) {
-        printf("SW works"); //call to SW subroutine should replace this
+        void SW(Card* deck) {
+            if (deck == NULL) { //her tjekkes om der er kort i decket
+                printf("Error: No deck loaded.\n");
+                return;
+            }
+
+            Card* current = deck;
+            while (current != NULL) {//hvis der er kort, så printer vi suit før rank, for hele decket
+                printf("%c %d ", current->suit, current->rank);
+                current = current->next;
+            }
+            printf("\n");
+
+            printf("LAST Command: SW\nMessage: OK\n");//alt har kørt ok
+        }
     } else if (strncmp(input, "SI", 2) == 0) { //checks if the first two characters of user input is SI
         int split = 0;
         if (strlen(input) > 2) { //Now checks if input is longer than 2 characters

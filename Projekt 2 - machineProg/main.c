@@ -224,8 +224,8 @@ int main(void) {
         printf("Enter the name of the text file to read: ");
         scanf("%s", filename);
 
-
-
+        char nameAppend[100] = "Projekt 2 - machineProg/";
+        strcat(nameAppend,filename);
         // Open the file
         FILE* file = fopen(filename, "r");
         if (file == NULL) {
@@ -241,6 +241,7 @@ int main(void) {
                 insertEnd(&head, suit, rank);
             }
         }
+
 
 
         // Close the file

@@ -17,9 +17,9 @@ typedef struct{
 }Card;
 
 typedef struct Node {
-    Card card;              // Pointer to store the string (line of text)
+    Card card;              // variable of the struct Card
     struct Node* next;       // Pointer to the next node
-} Node;
+}Node;
 
 
 // Function to create a new node
@@ -140,13 +140,15 @@ int parseCard(const char* str, char* suit, int* rank) {
     return 1;
 }
 
+void printDeck(Node* head) {
+    Node* current = head;
+    while (current != NULL) {
+        printf("%c %d\n", current->card.suit, current->card.rank);
+        current = current->next;
+    }
+}
 
-int main(void) {
-    //////////////////
-    char input[5]; //user can enter 4 characters, number 5 is used to terminate the input steam
-    Node* head = NULL;
-
-
+void startPhase() {
     for (int i = 0; i < NUM_TABLEAU_PILES; i++) {
         printf("C%d   ", i + 1);
     }
@@ -179,6 +181,14 @@ int main(void) {
     printf("LAST Command:\n"); //remember to add link to last command
     printf("Message:\n");//remember to add link to message
     printf("INPUT >");
+}
+
+int main(void) {
+    //////////////////
+    char input[5]; //user can enter 4 characters, number 5 is used to terminate the input steam
+    Node* head = NULL;
+
+    startPhase();
 
     fgets(input, sizeof(input), stdin); //input from user
 
@@ -189,16 +199,16 @@ int main(void) {
 
     if (strncmp(input,"LD",2) == 0) {
 
-        Node* Deck = NULL;
+        head = NULL;
         char line[1024];  // Buffer to store each line from the file
         char filename[100];
 
         // Get filename from user
-        printf("Enter the name of the text file to read: ");
-        scanf("%s", filename);
+        //printf("Enter the name of the text file to read: ");
+        //scanf("%s", filename);
 
         // Open the file
-        FILE* file = fopen(filename, "r");
+        FILE* file = fopen("Projekt 2 - machineProg/DeckDefault.txt", "r");
         if (file == NULL) {
             printf("Error opening file '%s'!\n", filename);
             return 1;
@@ -212,27 +222,14 @@ int main(void) {
                 insertEnd(&head, suit, rank);
             }
         }
+        printDeck(head);
 
 
         // Close the file
         fclose(file);
 
     } else if (strncmp(input, "SW",2) == 0) {
-        void SW(Card* deck) {
-            if (deck == NULL) { //her tjekkes om der er kort i decket
-                printf("Error: No deck loaded.\n");
-                return;
-            }
 
-            Card* current = deck;
-            while (current != NULL) {//hvis der er kort, så printer vi suit før rank, for hele decket
-                printf("%c %d ", current->suit, current->rank);
-                current = current->next;
-            }
-            printf("\n");
-
-            printf("LAST Command: SW\nMessage: OK\n");//alt har kørt ok
-        }
     } else if (strncmp(input, "SI", 2) == 0) { //checks if the first two characters of user input is SI
         int split = 0;
         if (strlen(input) > 2) { //Now checks if input is longer than 2 characters

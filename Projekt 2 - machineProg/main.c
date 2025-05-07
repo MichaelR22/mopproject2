@@ -1,4 +1,8 @@
+#include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
 #define length 10
 #define width 10
@@ -7,10 +11,151 @@
 #define NUM_CARDS 52
 
 
+typedef struct{
+    char suit; // C, D, H, S
+    int rank; // 1-13
+}Card;
+
+typedef struct Node {
+    Card card;              // Pointer to store the string (line of text)
+    struct Node* next;       // Pointer to the next node
+} Node;
+
+
+// Function to create a new node
+Node* createNode(char suit, int rank) {
+    // Allocate memory for the new node
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    if (newNode == NULL) {
+        printf("Memory allocation failed for node!\n");
+        exit(1);
+    }
+
+    // Kristian med mindre at LD eller SD behøver dette kan det slettes da Card ikke længere er en pointer variabel
+    // Allocate memory for the string and copy the card
+    /*newNode->card = (char*)malloc(strlen(card) + 1);
+    if (newNode->card == NULL) {
+        printf("Memory allocation failed for data!\n");
+        free(newNode);
+        exit(1);
+    }*/
+
+    newNode->card.suit = suit;
+    newNode->card.rank = rank;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Function to get the node at a specific index
+Node* getNodeAt(Node* head, int index) {
+    int count = 0;
+    Node* current = head;
+    while (current && count < index) {
+        current = current->next;
+        count++;
+    }
+    return current;
+}
+
+
+// Function to insert a node at the end of the linked list
+void insertEnd(Node** head, char suit, int rank) {
+    // Create a new node
+    Node* newNode = createNode(suit, rank);
+
+    // If the list is empty, make the new node the head
+    if (*head == NULL) {
+        *head = newNode;
+        return;
+    }
+
+    // Otherwise, traverse to the end of the list and add the new node
+    Node* temp = *head;
+    while (temp->next != NULL) {
+        temp = temp->next;
+    }
+
+    temp->next = newNode;
+}
+
+
+//Swap two nodes card data
+ void swapCards(Node* a, Node* b) {
+    Card temp = a->card;
+    a->card = b->card;
+    b->card = temp;
+ }
+
+//SR
+void shuffleRandom(Node* head) {
+    srand((unsigned int)time(NULL)); //Sets seed based on current time ;D
+    for (int i = NUM_CARDS - 1; i > 0; i--) { //As we use a single linked list we have to start from the last element
+        int j = rand() % (i + 1);
+        Node* nodeI = getNodeAt(head, i);
+        Node *nodeJ = getNodeAt(head, j);
+        swapCards(nodeI,nodeJ);
+    }
+}
+
+//SI
+void shuffleInterleaving(Node** deck, int split) {
+    if (*deck == NULL || (*deck)->next == NULL) return;
+
+    int size = NUM_CARDS;
+    if (split < 1 || split >= size) {
+        srand((unsigned int)time(NULL));
+        split = rand() % (size - 1) + 1;
+    }
+
+    // Split the list
+    Node* first = *deck;
+    Node* second = NULL;
+    Node* prev = NULL;
+
+    Node* current = *deck;
+    for (int i = 0; i < split; i++) {
+        prev = current;
+        current = current->next;
+    }
+
+    if (prev) {
+        prev->next = NULL; // Break the list into two parts
+        second = current;
+    }
+
+    // Shuffle
+    Node* interleaved = NULL;
+    Node** tail = &interleaved;
+
+    while (first && second) {
+        *tail = first;
+        first = first->next;
+        tail = &((*tail)->next);
+
+        *tail = second;
+        second = second->next;
+        tail = &((*tail)->next);
+    }
+
+    *tail = (first != NULL) ? first : second;
+    *deck = interleaved;
+}
+
+// Helper function to parse cards
+int parseCard(const char* str, char* suit, int* rank) {
+    if (strlen(str) < 2)
+        return 0;
+    *suit = str[0];
+    *rank = atoi(&str[1]);
+    return 1;
+}
 
 
 int main(void) {
     //////////////////
+    char input[5]; //user can enter 4 characters, number 5 is used to terminate the input steam
+    Node* head = NULL;
+
 
     for (int i = 0; i < NUM_TABLEAU_PILES; i++) {
         printf("C%d   ", i + 1);
@@ -45,20 +190,61 @@ int main(void) {
     printf("Message:\n");//remember to add link to message
     printf("INPUT >");
 
-    //////////////////
-    typedef struct {
-          char suit;
-          int rank;
-    } Card;
+    fgets(input, sizeof(input), stdin); //input from user
 
-    typedef struct Node {
-        Card* Card;              // Pointer to store the string (line of text)
-        struct Node* next;       // Pointer to the next node
-    } Node;
+    for (int i = 0; i < 2; ++i) { //converts user input so it is always uppercase
+        input[i] = toupper(input[i]);
+    }
+    printf("you entered %s\n",input);
 
+    if (strncmp(input,"LD",2) == 0) {
+        Node* Deck = NULL;
+        char line[1024];  // Buffer to store each line from the file
+        char filename[100];
+
+        // Get filename from user
+        printf("Enter the name of the text file to read: ");
+        scanf("%s", filename);
+
+        // Open the file
+        FILE* file = fopen("DeckDefault.txt", "r");
+        if (file == NULL) {
+            printf("Error opening file '%s'!\n", filename);
+            return 1;
+        }
+
+        // Read file line by line and add to linked list
+        while (fgets(line, sizeof(line), file)) {
+            char suit;
+            int rank;
+            if (parseCard(line, &suit, &rank)) {
+                insertEnd(&head, suit, rank);
+            }
+        }
+
+
+        // Close the file
+        fclose(file);
+
+    } else if (strncmp(input, "SW",2) == 0) {
+        printf("SW works"); //call to SW subroutine should replace this
+    } else if (strncmp(input, "SI", 2) == 0) { //checks if the first two characters of user input is SI
+        int split = 0;
+        if (strlen(input) > 2) { //Now checks if input is longer than 2 characters
+            split = atoi(&input[2]); //converts the input after SI to an integer
+        }
+        shuffleInterleaving(&head, split);
+    } else if (strncmp(input, "SR",2) == 0) {
+        shuffleRandom(head);
+    } else if (strncmp(input, "SD",2) == 0) {
+        printf("SD works"); //call to SD subroutine should replace this
+    } else if (strncmp(input, "QQ",2) == 0) {
+        return 0;
+    } else {
+        printf("Invalid command");
+    }
 
 
 }
-
 
 

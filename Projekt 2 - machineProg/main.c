@@ -234,8 +234,8 @@ int main(void) {
         printf("Enter the name of the text file to read: ");
         scanf("%s", filename);
 
-        char nameAppend[100] = "Projekt 2 - machineProg/";
-        strcat(nameAppend,filename);
+        //char nameAppend[100] = "Projekt 2 - machineProg/"; //can uncomment if the code doesnt want to accept just the file name
+        //strcat(nameAppend,filename);
         // Open the file
         FILE* file = fopen(filename, "r");
         if (file == NULL) {
@@ -257,6 +257,7 @@ int main(void) {
 
         // Close the file
         fclose(file);
+
 
     } else if (strncmp(input, "SW",2) == 0) {
        /* void SW(Card* deck) {

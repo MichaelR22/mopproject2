@@ -97,6 +97,50 @@ void shuffleRandom(Node* head) {
     }
 }
 
+//SI
+void shuffleInterleaving(Node** deck, int split) {
+    if (*deck == NULL || (*deck)->next == NULL) return;
+
+    int size = NUM_CARDS;
+    if (split < 1 || split >= size) {
+        srand((unsigned int)time(NULL));
+        split = rand() % (size - 1) + 1;
+    }
+
+    // Split the list
+    Node* first = *deck;
+    Node* second = NULL;
+    Node* prev = NULL;
+
+    Node* current = *deck;
+    for (int i = 0; i < split; i++) {
+        prev = current;
+        current = current->next;
+    }
+
+    if (prev) {
+        prev->next = NULL; // Break the list into two parts
+        second = current;
+    }
+
+    // Shuffle
+    Node* interleaved = NULL;
+    Node** tail = &interleaved;
+
+    while (first && second) {
+        *tail = first;
+        first = first->next;
+        tail = &((*tail)->next);
+
+        *tail = second;
+        second = second->next;
+        tail = &((*tail)->next);
+    }
+
+    *tail = (first != NULL) ? first : second;
+    *deck = interleaved;
+}
+
 // Helper function to parse cards
 int parseCard(const char* str, char* suit, int* rank) {
     if (strlen(str) < 2)
@@ -109,7 +153,7 @@ int parseCard(const char* str, char* suit, int* rank) {
 
 int main(void) {
     //////////////////
-    char input[3]; //needs to be 3 because terminating the input steam takes 1, otherwise the user input should always be 2.
+    char input[5]; //user can enter 4 characters, number 5 is used to terminate the input steam
     Node* head = NULL;
 
 
@@ -171,7 +215,11 @@ int main(void) {
 
         // Read file line by line and add to linked list
         while (fgets(line, sizeof(line), file)) {
-            insertEnd(&Deck, line);
+            char suit;
+            int rank;
+            if (parseCard(line, &suit, &rank)) {
+                insertEnd(&head, suit, rank);
+            }
         }
 
 
@@ -183,8 +231,12 @@ int main(void) {
 
     } else if (strcmp(input, "SW") == 0) {
         printf("SW works"); //call to SW subroutine should replace this
-    } else if (strcmp(input, "SI") == 0) {
-        printf("SW works"); //call to SI subroutine should replace this
+    } else if (strncmp(input, "SI", 2) == 0) { //checks if the first two characters of user input is SI
+        int split = 0;
+        if (strlen(input) > 2) { //Now checks if input is longer than 2 characters
+            split = atoi(&input[2]); //converts the input after SI to an integer
+        }
+        shuffleInterleaving(&head, split);
     } else if (strcmp(input, "SR") == 0) {
         shuffleRandom(head);
     } else if (strcmp(input, "SD") == 0) {

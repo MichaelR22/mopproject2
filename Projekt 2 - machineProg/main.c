@@ -21,7 +21,7 @@ typedef struct Node {
     struct Node* next;       // Pointer to the next node
 }Node;
 
-void saveDeck(struct Node* head) {  // Removed the extra semicolon
+void saveDeck(struct Node* head) {
     char filename[1024];
     printf("Enter the name of the text file to save to: ");
     scanf("%s", filename);
@@ -33,7 +33,7 @@ void saveDeck(struct Node* head) {  // Removed the extra semicolon
         printf("Deck not found, creating new deck\n");
     }
 
-    struct Node* current = head;  // Use a temporary pointer to avoid modifying the original head
+    Node* current = head;  // Use a temporary pointer to avoid modifying the original head
 
     // A loop that runs till current is NULL
     while (current != NULL) {
@@ -174,7 +174,7 @@ void printDeck(Node* head) {
         current = current->next;
     }
 }
-
+//WIP
 void startPhase() {
     for (int i = 0; i < NUM_TABLEAU_PILES; i++) {
         printf("C%d   ", i + 1);
@@ -209,6 +209,65 @@ void startPhase() {
     printf("Message:\n");//remember to add link to message
     printf("INPUT >");
 }
+//WIP
+void showCards(Node* head) {
+    for (int i = 0; i < NUM_TABLEAU_PILES; i++) {
+        printf("C%d   ", i + 1);
+    }
+    printf("\n");
+
+    Node* current = head;
+    int lineline = 1;
+    while (current != NULL) {
+        for (int k = 0; k < NUM_TABLEAU_PILES; k++) {
+            if (current != NULL) {
+                char rankStr[3];
+                switch (current->card.rank) {
+                    case 1:  strcpy(rankStr, "A"); break;
+                    case 11: strcpy(rankStr, "J"); break;
+                    case 12: strcpy(rankStr, "Q"); break;
+                    case 13: strcpy(rankStr, "K"); break;
+                    default: sprintf(rankStr, "%d", current->card.rank); break;
+                }
+
+                printf("%c%s", current->card.suit, rankStr);
+                // Adjust spacing
+                if (strlen(rankStr) == 1) printf(" ");
+                printf("  ");
+
+                current = current->next;
+            }
+        }
+        printf("\t\t[]\tF%d", lineline++);
+        printf("\n");
+    }
+
+    printf("LAST Command:\n");
+    printf("Message:\n");
+    printf("INPUT >");
+}
+
+Node* loadDeckFromFile(const char* filename) {
+    Node* newDeck = NULL;
+    FILE* file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Error opening file '%s'!\n", filename);
+        return NULL;
+    }
+
+    char line[1024];
+    while (fgets(line, sizeof(line), file)) {
+        char suit;
+        int rank;
+        if (parseCard(line, &suit, &rank)) {
+            insertEnd(&newDeck, suit, rank);
+        }
+    }
+
+    fclose(file);
+    printf("Deck loaded from %s\n", filename);
+    return newDeck;
+}
 
 int main(void) {
     //////////////////
@@ -224,69 +283,39 @@ int main(void) {
     }
     printf("you entered %s\n",input);
 
+    //LD
     if (strncmp(input,"LD",2) == 0) {
-
         head = NULL;
-        char line[1024];  // Buffer to store each line from the file
         char filename[100];
 
         // Get filename from user
         printf("Enter the name of the text file to read: ");
         scanf("%s", filename);
 
-        //char nameAppend[100] = "Projekt 2 - machineProg/"; //can uncomment if the code doesnt want to accept just the file name
-        //strcat(nameAppend,filename);
-        // Open the file
-        FILE* file = fopen(filename, "r");
-        if (file == NULL) {
-            printf("Error opening file '%s'!\n", filename);
-            return 1;
+        head = loadDeckFromFile(filename); //calls helper method
+        if (head != NULL) {
+            printDeck(head);
         }
-
-        // Read file line by line and add to linked list
-        while (fgets(line, sizeof(line), file)) {
-            char suit;
-            int rank;
-            if (parseCard(line, &suit, &rank)) {
-                insertEnd(&head, suit, rank);
-            }
-        }
-        printDeck(head);
-
-
-
-        // Close the file
-        fclose(file);
-
-
+    //SW
     } else if (strncmp(input, "SW",2) == 0) {
-       /* void SW(Card* deck) {
-            if (deck == NULL) { //her tjekkes om der er kort i decket
-                printf("Error: No deck loaded.\n");
-                return;
-            }
-
-            Card* current = deck;
-            while (current != NULL) {//hvis der er kort, så printer vi suit før rank, for hele decket
-                printf("%c %d ", current->suit, current->rank);
-                current = current->next;
-            }
-            printf("\n");
-
-         printf("LAST Command: SW\nMessage: OK\n");//alt har kørt ok
-        }*/
+        showCards(head);
+    //SI
     } else if (strncmp(input, "SI", 2) == 0) { //checks if the first two characters of user input is SI
         int split = 0;
         if (strlen(input) > 2) { //Now checks if input is longer than 2 characters
             split = atoi(&input[2]); //converts the input after SI to an integer
         }
         shuffleInterleaving(&head, split);
+    //SR
     } else if (strncmp(input, "SR",2) == 0) {
         shuffleRandom(head);
+    //SD
     } else if (strncmp(input, "SD",2) == 0) {
         saveDeck(head);
+    //QQ
     } else if (strncmp(input, "QQ",2) == 0) {
         return 0;
+    //Default if commando is not valid
     } else {
         printf("Invalid command");
     }

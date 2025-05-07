@@ -209,7 +209,7 @@ int main(void) {
             char suit;
             int rank;
             if (parseCard(line, &suit, &rank)) {
-                insertEnd(&head, suit, rank);
+                insertEnd(&Deck, suit, rank);
             }
         }
 
@@ -242,7 +242,26 @@ int main(void) {
     } else if (strncmp(input, "SR",2) == 0) {
         shuffleRandom(head);
     } else if (strncmp(input, "SD",2) == 0) {
-        printf("SD works"); //call to SD subroutine should replace this
+        void saveDeck(struct Node* head); {
+
+            // A loop that runs till head is NULL
+            while (head != NULL) {
+                char filename [1024];
+                printf("Enter the name of the text file to : ");
+                scanf("%s", filename);
+                FILE *fptr;
+                fptr = fopen(filename, "w");
+
+                // Printing data of current node
+                fprintf(fptr, head->card.suit, head->card.rank);
+
+                // Moving to the next node
+                head = head->next;
+
+                // Close the file
+                fclose(fptr);
+            }
+        }
     } else if (strncmp(input, "QQ",2) == 0) {
         return 0;
     } else {

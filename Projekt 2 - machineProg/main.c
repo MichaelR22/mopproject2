@@ -197,7 +197,7 @@ int main(void) {
     }
     printf("you entered %s\n",input);
 
-    if (strcmp(input,"LD") == 0) {
+    if (strncmp(input,"LD",2) == 0) {
         Node* Deck = NULL;
         char line[1024];  // Buffer to store each line from the file
         char filename[100];
@@ -226,10 +226,7 @@ int main(void) {
         // Close the file
         fclose(file);
 
-
-        return 0;
-
-    } else if (strcmp(input, "SW") == 0) {
+    } else if (strncmp(input, "SW",2) == 0) {
         printf("SW works"); //call to SW subroutine should replace this
     } else if (strncmp(input, "SI", 2) == 0) { //checks if the first two characters of user input is SI
         int split = 0;
@@ -237,11 +234,11 @@ int main(void) {
             split = atoi(&input[2]); //converts the input after SI to an integer
         }
         shuffleInterleaving(&head, split);
-    } else if (strcmp(input, "SR") == 0) {
+    } else if (strncmp(input, "SR",2) == 0) {
         shuffleRandom(head);
-    } else if (strcmp(input, "SD") == 0) {
-        printf("SW works"); //call to SD subroutine should replace this
-    } else if (strcmp(input, "QQ") == 0) {
+    } else if (strncmp(input, "SD",2) == 0) {
+        printf("SD works"); //call to SD subroutine should replace this
+    } else if (strncmp(input, "QQ",2) == 0) {
         return 0;
     } else {
         printf("Invalid command");

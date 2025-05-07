@@ -77,7 +77,11 @@ void shuffleInterleaving(Node** deck, int split) {
     if (*deck == NULL || (*deck)->next == NULL) return;
 
     int size = NUM_CARDS;
-    if (split < 1 || split >= size) {
+    if (split >= size) {
+        printf("For SI, the number must be between 1 and 52\n");
+        return;
+    }
+    if (split < 1) {
         srand((unsigned int)time(NULL));
         split = rand() % (size - 1) + 1;
     }
@@ -197,7 +201,8 @@ Node* loadDeckFromFile(const char* filename) {
 
 int main(void) {
     //////////////////
-    char input[5]; //user can enter 4 characters, number 5 is used to terminate the input steam
+    char input[6]; //user can enter 5 characters, number 6 is used to terminate the input steam
+    char message[256] = "";
     Node* head = NULL;
 
     while (1) {
@@ -245,11 +250,13 @@ int main(void) {
             printf("\n");
         }
         if (input[0] != 0) {
-            printf("LAST Command: %s",input); //remember to add link to last command
+            printf("LAST Command: %s",input);
+            printf("Message: %s\n", message);
         } else {
             printf("LAST Command: -\n");
+            printf("Message: -\n");
         }
-        printf("Message:\n");//remember to add link to message
+
         printf("INPUT >");
 
         fgets(input, sizeof(input), stdin); //input from user
@@ -271,6 +278,9 @@ int main(void) {
             head = loadDeckFromFile(filename); //calls helper method
             if (head != NULL) {
                 printDeck(head);
+                sprintf(message, "Deck loaded from %s", filename);
+            } else {
+                strcpy(message, "Failed to load deck");
             }
         //SW
         } else if (strncmp(input, "SW",2) == 0) {
@@ -289,7 +299,12 @@ int main(void) {
             if (strlen(input) > 2) { //Now checks if input is longer than 2 characters
                 split = atoi(&input[2]); //converts the input after SI to an integer
             }
-            shuffleInterleaving(&head, split);
+            if (split >= NUM_CARDS) {
+                strcpy(message, "For SI, the number must be between 1 and 51");
+            } else {
+                shuffleInterleaving(&head, split);
+                strcpy(message, "Deck interleaved successfully");
+            }
         //SR
         } else if (strncmp(input, "SR",2) == 0) {
             if (head == NULL) {
@@ -315,6 +330,7 @@ int main(void) {
             }
             break;
         } else {
+            strcpy(message, "Invalid command");
             printf("Invalid command");
         }
     }

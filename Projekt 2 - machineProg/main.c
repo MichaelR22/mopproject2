@@ -17,6 +17,7 @@ typedef struct{
 
 typedef struct Node {
     Card card;              // variable of the struct Card
+    int visible;
     struct Node* next;       // Pointer to the next node
 }Node;
 
@@ -30,6 +31,7 @@ Node* createNode(char suit, int rank) {
     }
     newNode->card.suit = suit;
     newNode->card.rank = rank;
+    newNode->visible = 0;
     newNode->next = NULL;
     return newNode;
 }
@@ -137,9 +139,9 @@ void saveDeck(struct Node* head) {
     printf("Enter the name of the text file to save to: ");
     scanf("%s", filename);
 
-    FILE *fptr;
-    fptr = fopen(filename, "w");
 
+
+    FILE *fptr = fopen(filename, "w");
     if (fptr == NULL) {
         printf("Deck not found, creating new deck\n");
     }
@@ -157,6 +159,9 @@ void saveDeck(struct Node* head) {
 
     // Close the file AFTER the loop (not inside it)
     fclose(fptr);
+    // Clear newline left in input buffer
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
     printf("Deck saved successfully to %s\n", filename);
 }
 
@@ -217,17 +222,20 @@ int main(void) {
         while (j < NUM_CARDS && current != NULL) {
             for (int k = 0; k < NUM_TABLEAU_PILES; k++) {
                 if (current != NULL) {
-                    char rankStr[3];
-                    switch (current->card.rank) {
-                        case 1:  strcpy(rankStr, "A"); break;
-                        case 10: strcpy(rankStr, "T"); break;
-                        case 11: strcpy(rankStr, "J"); break;
-                        case 12: strcpy(rankStr, "Q"); break;
-                        case 13: strcpy(rankStr, "K"); break;
-                        default: sprintf(rankStr, "%d", current->card.rank); break;
+                    if (current->visible) {
+                        char rankStr[3];
+                        switch (current->card.rank) {
+                            case 1:  strcpy(rankStr, "A"); break;
+                            case 10: strcpy(rankStr, "T"); break;
+                            case 11: strcpy(rankStr, "J"); break;
+                            case 12: strcpy(rankStr, "Q"); break;
+                            case 13: strcpy(rankStr, "K"); break;
+                            default: sprintf(rankStr, "%d", current->card.rank); break;
+                        }
+                        printf("%s%c", rankStr, current->card.suit);
+                    } else {
+                        printf("[]");
                     }
-
-                    printf("%s%c", rankStr, current->card.suit);
                     current = current->next;
                 } else {
                     printf("[]"); // blank if no more cards
@@ -275,24 +283,32 @@ int main(void) {
             printf("Enter the name of the text file to read: ");
             scanf("%s", filename);
 
+            // Flush newline leftover in input buffer
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF);
+
             head = loadDeckFromFile(filename); //calls helper method
             if (head != NULL) {
-                printDeck(head);
-                sprintf(message, "Deck loaded from %s", filename);
+                sprintf(message,"Deck loaded from %s", filename);
             } else {
-                strcpy(message, "Failed to load deck");
+                strcpy(message,"Failed to load deck");
             }
         //SW
         } else if (strncmp(input, "SW",2) == 0) {
             if (head == NULL) {
                 printf("No deck loaded. Using default deck.\n");
-                head = loadDeckFromFile("Projekt 2 - machineProg/DeckDefault.txt");
+                head = loadDeckFromFile("DeckDefault.txt");
+            }
+            Node* temp = head;
+            while (temp != NULL) {
+                temp->visible = 1;
+                temp = temp->next;
             }
         //SI
         } else if (strncmp(input, "SI", 2) == 0) { //checks if the first two characters of user input is SI
             if (head == NULL) {
                 printf("No deck loaded. Using default deck.\n");
-                head = loadDeckFromFile("Projekt 2 - machineProg/DeckDefault.txt");
+                head = loadDeckFromFile("DeckDefault.txt");
             }
 
             int split = 0;
@@ -309,14 +325,14 @@ int main(void) {
         } else if (strncmp(input, "SR",2) == 0) {
             if (head == NULL) {
                 printf("No deck loaded. Using default deck.\n");
-                head = loadDeckFromFile("Projekt 2 - machineProg/DeckDefault.txt");
+                head = loadDeckFromFile("DeckDefault.txt");
             }
             shuffleRandom(head);
         //SD
         } else if (strncmp(input, "SD",2) == 0) {
             if (head == NULL) {
                 printf("No deck loaded. Using default deck.\n");
-                head = loadDeckFromFile("Projekt 2 - machineProg/DeckDefault.txt");
+                head = loadDeckFromFile("DeckDefault.txt");
             }
             saveDeck(head);
         //QQ
@@ -326,12 +342,12 @@ int main(void) {
         } else if (strncmp(input, "P",1) == 0) {
             if (head == NULL) {
                 printf("No deck loaded. Using default deck.\n");
-                head = loadDeckFromFile("Projekt 2 - machineProg/DeckDefault.txt");
+                head = loadDeckFromFile("DeckDefault.txt");
             }
             break;
         } else {
             strcpy(message, "Invalid command");
-            printf("Invalid command");
+            printf("Invalid command\n");
         }
     }
 }

@@ -4,8 +4,6 @@
 #include <string.h>
 #include <time.h>
 
-#define length 10
-#define width 10
 #define NUM_TABLEAU_PILES 7
 #define NUM_TABLEAU_ROWS 10
 #define NUM_CARDS 52
